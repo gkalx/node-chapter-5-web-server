@@ -4,6 +4,12 @@ const fs = require('fs');
 //in order to create an app all we have to do is call the express method
 var app = express();
 //see playground notes
+
+//support for partials above view engine
+hbs.registerPartials(__dirname + '/views/partials');
+//is going to take the directory you want to use for all of your handlebar partial files
+// You can run nodemon server.js -e js,hbs this is going to watch for changes in
+// files with this extensions
 const port = process.env.PORT || 3000;
 //set all our http route
 //app.get takes 2 arg the url and a function run and what to send back to
@@ -45,17 +51,40 @@ app.use((req, res, next)=>{
 //--want the help page not to apear and make our puplic folder private
 //-- we have to reorder it and move it from before the maintenance
 //--after the maintenance
-app.use((req,res,next)=>{
-  res.render('maintenance.hbs',{
-    pageTitle: 'Home Page',
-    currentYear: new Date().getFullYear(),
-    pageTitle: 'Maintenance Mode',
-    pageMessage: 'Website is under construction...'
-  });
-  //without calling next it dosent go to render other pages.
-});
-app.use(express.static(__dirname + '/public'));
 
+// app.use((req,res,next)=>{
+//   res.render('maintenance.hbs',{
+//     pageTitle: 'Maintenance Page',
+//     currentYear: new Date().getFullYear(),
+//     pageTitle: 'Maintenance Mode',
+//     pageMessage: 'Website is under construction...'
+//   });
+//   //without calling next it dosent go to render other pages.
+// });
+app.use(express.static(__dirname + '/public'));
+//partial is nothing more than a function you can run from inside of your handlebar
+//template all you need to do is register it right below where we set up our
+// express middleware and we are going to be registering a helper function.
+// hbs.registerHelper take 2 arguments the name of the helper as the first parm
+// and the function to run as the second.
+//we are going to be creating a helper that returns the current year
+hbs.registerHelper('getCurrentYear', ()=>{
+//and anything we return from this funtion is going to get rendered in place of
+//the getCurrentYear call
+// That means if i call getCurrentYear inside of the footer it's going to return
+//from the function and that data is what is going to get rendered
+return new Date().getFullYear();
+});
+
+//Our helper can also take arguments and this is realy useful stuff. Lets create
+//a 2nd helper that is going to be a capitalization helper. We'll call the
+//helper screen it and its job is going to be to take some text and its going to
+//return that text in uppercase. In order to do this we will be calling the
+//hbs.registerHelper again like bellow. called screamIt accept 1 param the text
+//and all is going to do is
+hbs.registerHelper('screamIt', (text)=>{
+return text.toUpperCase();
+});
 
 //next exist so you can tell exrpress when your midleware is done
 //and this is usefull because you can have us many midlewares as you like
@@ -67,6 +96,8 @@ app.use(express.static(__dirname + '/public'));
 //they never going to fire. because it will never go to to the next Middleware
 //So with no next(); if we go to homepage the page never gets servered.
 //Inside our middleware we want to make a file to store all our requests.
+
+
 
 app.get('/',(req, res)=>{
   var now = new Date().toString();
@@ -88,7 +119,6 @@ app.get('/',(req, res)=>{
   // });
   res.render('home.hbs',{
     pageTitle: 'Home Page',
-    currentYear: new Date().getFullYear(),
     welcomeMessage: 'Welcome to our Express Website.'
   });
 });
@@ -97,8 +127,14 @@ app.get('/',(req, res)=>{
 app.get('/about', (req,res)=>{
   // res.send('About Page');
   res.render('about.hbs',{
-    pageTitle: 'About Page',
-    currentYear: new Date().getFullYear()
+    pageTitle: 'About Page'
+  });
+});
+
+app.get('/projects', (req,res)=>{
+  // res.send('About Page');
+  res.render('projects.hbs',{
+    pageTitle: 'Projects'
   });
 });
 
