@@ -3,6 +3,8 @@ const hbs = require('hbs');
 const fs = require('fs');
 //in order to create an app all we have to do is call the express method
 var app = express();
+//see playground notes
+const port = process.env.PORT || 3000;
 //set all our http route
 //app.get takes 2 arg the url and a function run and what to send back to
 //the persnon that made the request. This function accepts 2 arguments
@@ -110,6 +112,6 @@ app.get('/bad', (req,res)=>{
 //app.listen(3000);
 //app.listen(3000,()=>{console.lgo('Server is up on port 3000')});
 //takes a callback function and in our case we have only a console.log message
-app.listen(3000, () => {
-  console.log('Server is up on port 3000')
+app.listen(port, () => {
+  console.log(`Server is up on port ${port}`)
 });
